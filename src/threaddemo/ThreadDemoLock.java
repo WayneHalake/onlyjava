@@ -5,10 +5,12 @@ import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * 线程锁
- * synchronized
+ * 独占锁
+ * 独占锁的模式类似于单线程的运行方式，
  */
 public class ThreadDemoLock {
 
@@ -17,8 +19,10 @@ public class ThreadDemoLock {
     // 共享资源
     public static Queue<Integer> queue = new ArrayDeque<>();
 
-    public static void main(String[] args){
+    //创建一个独占锁
+    public static final Lock lock = new ReentrantLock();
 
+    public static void main(String[] args){
         // 创建固定线程池 -- 包含两个线程对象
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
@@ -28,21 +32,15 @@ public class ThreadDemoLock {
             //具备返回值
             @Override
             public String call() throws Exception {
-                //使用synchronized 获取queue的监视器，并获取queue的锁
-                synchronized (queue){
-                    while (queue.size() == MAX_LENGTH){
-                        System.out.println("消费队列中资源已满，当前阻塞！");
-                        //消费队列内数据满的时候，挂起当前线程，并释放通过同步代码（synchronized）获取的queue的锁，让消费者可以获取该锁
-                        queue.wait();
-                    }
 
+                lock.lock(); //获取独占锁
+                System.out.println("获取独占锁，往queue中添加数据！");
+                while (queue.size() < MAX_LENGTH){
                     queue.add(0);
-                    System.out.println("生产资源：" + queue.peek());
-                    //通知所有等待该锁资源的线程
-                    queue.notifyAll();
-                    //仅通知一个等待该锁资源的线程，且不能知名通知哪一个具体的线程
-                    //queue.notify();
+                    System.out.println("添加的数据："+queue.peek());
                 }
+                System.out.println("释放独占锁！");
+                lock.unlock();
                 return "线程执行Callabel的call方法。。。";
             }
         };
@@ -51,23 +49,20 @@ public class ThreadDemoLock {
         Callable<String> consumer = new Callable<String>() {
             @Override
             public String call() throws Exception {
-                synchronized (queue){
-                    //消费队列中没有资源时，阻塞
-                    while (queue.size() == 0){
-                        System.out.println("消费队列中没有资源，当前阻塞！");
-                        queue.wait(); //如生产者
-                    }
-                    System.out.println("消费资源：" + queue.poll());
-                    queue.notifyAll();
+                lock.lock();
+                System.out.println("获取独占锁，读取queue中的数据");
+                while (queue.size() > 0){
+                    System.out.println("获取的数据：" +queue.poll());
                 }
+                System.out.println("释放独占锁！");
+                lock.unlock();
                 return null;
             }
         };
 
-        while (true){
+            while (true){
             executorService.submit(producer);
             executorService.submit(consumer);
         }
     }
-
 }
