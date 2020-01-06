@@ -20,7 +20,9 @@ import java.util.concurrent.*;
  * 3.HashTable 添加、获取、删除 内部使用synchronized（对象锁）实现 效率较低
  * 4.ConcurrentHashMap 写操作 内部实现使用synchronized（资源锁）实现 一把锁只锁住一个链表或者一棵树，并发效率更加提升  读操作遵循弱一致性
  * 5.concurrentLinkedDeque 写操作 内部使用UNSAFE的CAS操作保证线程的一致性， 读操作遵循弱一致性
- * 6.StringBuffer 线程安全 使用synchronized(对象锁)  StringBuilder 线程不安全   StringBuffer和StringBuilder均实现了CharSequence
+ * 6.StringBuffer 线程安全 使用synchronized(对象锁)  StringBuilder 线程不安全
+ *      均继承了AbstractStringBuilder
+ *      StringBuffer和StringBuilder均实现了CharSequence
  * */
 public class ThreadDemoCollector {
     public static Vector<Integer> vector = new Vector<>();
