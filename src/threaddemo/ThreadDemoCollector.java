@@ -31,15 +31,88 @@ public class ThreadDemoCollector {
 
     public static Hashtable<Integer, Object> hashtable = new Hashtable<>();
     public static ConcurrentHashMap<Integer, Object> concurrentHashMap = new ConcurrentHashMap<>();
+
+    // 无界非阻塞队列
     //deque 双向队列
     public static ConcurrentLinkedDeque<Integer> concurrentLinkedDeque = new ConcurrentLinkedDeque<>();
     //queue 单项队列
     public static ConcurrentLinkedQueue<Integer> concurrentLinkedQueue = new ConcurrentLinkedQueue<>();
 
+    //有界阻塞队列
+    public static LinkedBlockingDeque<Integer> linkedBlockingDeque = new LinkedBlockingDeque<>();
+
+
     public static StringBuffer stringBuffer = new StringBuffer();
     public static StringBuilder stringBuilder = new StringBuilder();
 
     public static void main(String[] agrs){
+        ThreadDemoCollector.testBlockingQueue();
+    }
+
+    public static void testBlockingQueue(){
+        linkedBlockingDeque.offer(1);
+        linkedBlockingDeque.offer(2);
+
+        Thread thread1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int queueInt1 = linkedBlockingDeque.poll();
+                System.out.println(queueInt1);
+            }
+        });
+
+        Thread thread2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int queueInt2 = linkedBlockingDeque.poll();
+                System.out.println(queueInt2);
+            }
+        });
+
+        thread1.start();
+        thread2.start();
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println(concurrentLinkedQueue.toString());
+    }
+
+
+    public static void testConcurrentQueue(){
+        concurrentLinkedQueue.offer(1);
+        concurrentLinkedQueue.offer(2);
+
+        Thread thread1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int queueInt1 = concurrentLinkedQueue.poll();
+                System.out.println(queueInt1);
+            }
+        });
+
+        Thread thread2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int queueInt2 = concurrentLinkedQueue.poll();
+                System.out.println(queueInt2);
+            }
+        });
+
+        thread1.start();
+        thread2.start();
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println(concurrentLinkedQueue.toString());
+    }
+
+    public void test(){
         //vector 相关操作
         vector.add(1);
         vector.get(0);
